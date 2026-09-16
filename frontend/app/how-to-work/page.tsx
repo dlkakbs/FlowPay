@@ -78,7 +78,7 @@ const MODULES = [
     href: "/paywall",
     title: "Paywall",
     subtitle: "An onchain marketplace for pay-per-request APIs and AI-powered services",
-    what: "ArcFlow's Paywall connects two sides: clients who pay per request and service providers who earn per call. Service ownership and pricing live onchain, while payments settle in batches with provider earnings claimable from the contract.",
+    what: "FlowPay's Paywall connects two sides: clients who pay per request and service providers who earn per call. Service ownership and pricing live onchain, while payments settle in batches with provider earnings claimable from the contract.",
     useCases: [
       "AI-powered APIs monetized per call",
       "Data feeds billed by actual usage",
@@ -128,17 +128,17 @@ export default function HowToWorkPage() {
         <section className="flex min-h-[72vh] items-center justify-center">
           <div className="max-w-4xl text-center">
             <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] uppercase tracking-[0.28em] text-[#ffd7c7] backdrop-blur-md">
-              <Sparkles className="h-3.5 w-3.5" /> Get started · ArcFlow
+              <Sparkles className="h-3.5 w-3.5" /> Get started · FlowPay
             </div>
 
             <h1 className="mt-8 text-5xl font-semibold leading-[0.9] tracking-[-0.06em] text-white md:text-7xl lg:text-[86px]">
-              How ArcFlow
+              How FlowPay
               <span className="block text-[#ffb38a]">works</span>
               <span className="block text-white/85">across every payment flow.</span>
             </h1>
 
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/68 md:text-[21px]">
-              ArcFlow brings stream, invoice, and paywall logic into one on-chain payment system built around native USDC on Arc Testnet.
+              FlowPay brings stream, invoice, and paywall logic into one on-chain payment system built around native USDC. Built on Arc Testnet.
             </p>
           </div>
         </section>

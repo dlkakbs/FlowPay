@@ -423,7 +423,7 @@ export default function StreamPage() {
                     <p className="text-sm uppercase tracking-[0.24em] text-white/50">New stream</p>
                     <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">Create a live payment flow</h2>
                   </div>
-                  <div className="rounded-full border border-white/12 bg-white/10 px-3 py-1 text-xs text-white/70">ArcFlow</div>
+                  <div className="rounded-full border border-white/12 bg-white/10 px-3 py-1 text-xs text-white/70">FlowPay</div>
                 </div>
               </div>
 

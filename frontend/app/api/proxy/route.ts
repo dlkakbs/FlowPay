@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     const upstreamResponse = await fetch(service.endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-ArcFlow-Service': service.serviceId },
+      headers: { 'Content-Type': 'application/json', 'X-FlowPay-Service': service.serviceId },
       body: JSON.stringify({
         prompt,
         clientAddress,

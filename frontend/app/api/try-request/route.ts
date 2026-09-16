@@ -24,13 +24,13 @@ const ABI = [
 ] as const;
 
 const DEMO_RESPONSES: Record<string, string> = {
-  default: "ArcFlow enables usage-based payments onchain.",
-  stream: "Streaming payments on ArcFlow accrue every second. Recipients can withdraw anytime without waiting for a payment cycle.",
-  invoice: "ArcFlow invoices are settled on-chain. Create one, share the ID, and the payer sends USDC directly to you.",
+  default: "FlowPay enables usage-based payments onchain.",
+  stream: "Streaming payments on FlowPay accrue every second. Recipients can withdraw anytime without waiting for a payment cycle.",
+  invoice: "FlowPay invoices are settled on-chain. Create one, share the ID, and the payer sends USDC directly to you.",
   paywall: "The paywall model lets you deposit USDC upfront and consume credits per API call — no subscription, no overpaying.",
-  usdc: "ArcFlow uses native USDC on Arc Testnet. Sub-cent transactions make micropayments viable for the first time.",
-  arc: "Arc is a high-throughput EVM chain with native USDC support. ArcFlow is built natively on Arc to make payments instant and cheap.",
-  how: "ArcFlow has three payment primitives: Stream (continuous), Invoice (one-time), and Paywall (per-request). Each maps to a real-world payment need.",
+  usdc: "FlowPay uses native USDC on Arc Testnet. Sub-cent transactions make micropayments viable for the first time.",
+  arc: "Arc is a high-throughput EVM chain with native USDC support. FlowPay is built on Arc to make payments instant and cheap.",
+  how: "FlowPay has three payment primitives: Stream (continuous), Invoice (one-time), and Paywall (per-request). Each maps to a real-world payment need.",
 };
 
 function getDemoResponse(prompt: string): string {
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
     success: true,
     response: {
       message: getDemoResponse(prompt ?? ""),
-      model: "arcflow-demo-v1",
+      model: "flowpay-demo-v1",
       timestamp: new Date().toISOString(),
     },
     creditsUsed: 1,

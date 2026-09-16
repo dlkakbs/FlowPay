@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Arc Flow",
-  description: "Stream, invoice, and monetize with native USDC on Arc.",
+  title: "FlowPay",
+  description: "Stream, invoice, and monetize with native USDC. Built on Arc.",
 };
 
 export default function RootLayout({

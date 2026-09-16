@@ -138,8 +138,8 @@ export default function HomePage() {
 
             <Reveal>
               <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/68 md:text-[21px]">
-                ArcFlow brings stream, invoice, and paywall flows into a more expressive,
-                modern onchain payment experience built around native USDC on Arc.
+                FlowPay brings stream, invoice, and paywall flows into a more expressive,
+                modern onchain payment experience built around native USDC. Built on Arc.
               </p>
             </Reveal>
 
@@ -235,7 +235,7 @@ export default function HomePage() {
             <div className="h-full rounded-[2.2rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.05))] p-8 backdrop-blur-xl md:p-10">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white/70">
                 <Stars className="h-3.5 w-3.5" />
-                Why ArcFlow exists
+                Why FlowPay exists
               </div>
 
               <h2 className="mt-5 text-3xl font-semibold leading-tight tracking-[-0.05em] text-white md:text-5xl">
@@ -247,7 +247,7 @@ export default function HomePage() {
                 Subscriptions, invoices, and usage-based pricing all live in separate systems,
                 creating friction for both builders and users.
                 <br /><br />
-                ArcFlow brings them together. A single onchain system where money can flow
+                FlowPay brings them together. A single onchain system where money can flow
                 over time, settle instantly, or move per usage — without switching tools
                 or contexts.
               </p>

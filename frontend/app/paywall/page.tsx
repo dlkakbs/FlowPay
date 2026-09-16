@@ -169,7 +169,7 @@ export default function PaywallPage() {
         await publicClient.waitForTransactionReceipt({ hash: registerHash });
       }
 
-      const message = `ArcFlow service publish\nOwner: ${address}\nService ID: ${serviceId ?? "v1"}\nName: ${svcName}\nEndpoint: ${svcEndpoint}\nDescription: ${svcDesc || "-"}`;
+      const message = `FlowPay service publish\nOwner: ${address}\nService ID: ${serviceId ?? "v1"}\nName: ${svcName}\nEndpoint: ${svcEndpoint}\nDescription: ${svcDesc || "-"}`;
       const signature = await signMessageAsync({ message });
       const res = await fetch("/api/services", {
         method: "POST",
@@ -388,7 +388,7 @@ export default function PaywallPage() {
               Deposit once, consume request credits over time, and pay only for actual usage instead of bloated subscriptions.
             </p>
             <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-white/40">
-              Building an API or AI-powered service? Publish your service below — clients discover it in the marketplace, while your real endpoint stays hidden behind the ArcFlow proxy.
+              Building an API or AI-powered service? Publish your service below — clients discover it in the marketplace, while your real endpoint stays hidden behind the FlowPay proxy.
             </p>
           </div>
         </Reveal>
@@ -692,7 +692,7 @@ export default function PaywallPage() {
 
             <div className="p-7 md:p-8">
               <p className="max-w-xl text-sm leading-7 text-white/60">
-                Register your API or AI-powered service here. Ownership, pricing, activation state, and earnings live onchain. Your service name and description are public, but the real backend endpoint stays private behind the ArcFlow proxy.
+                Register your API or AI-powered service here. Ownership, pricing, activation state, and earnings live onchain. Your service name and description are public, but the real backend endpoint stays private behind the FlowPay proxy.
               </p>
 
               {!svcResult || !svcResultVisible ? (
@@ -712,7 +712,7 @@ export default function PaywallPage() {
                       value={svcEndpoint}
                       onChange={(e) => setSvcEndpoint(e.target.value)}
                     />
-                    <p className="mt-2 text-xs text-white/35">Private — only ArcFlow sees this. Clients receive a proxy URL instead.</p>
+                    <p className="mt-2 text-xs text-white/35">Private — only FlowPay sees this. Clients receive a proxy URL instead.</p>
                   </div>
                   {IS_PAYWALL_V2 ? (
                     <div>

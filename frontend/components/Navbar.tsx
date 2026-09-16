@@ -32,10 +32,10 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.6rem] border border-white/12 bg-white/8 px-4 py-3 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.18)] md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-[22px] font-extrabold tracking-[-0.05em] text-white md:text-[24px]">
-            ARC
+            Flow
           </span>
           <span className="text-[22px] font-extrabold tracking-[-0.05em] text-[#ffb38a] md:text-[24px]">
-            Flow
+            Pay
           </span>
         </Link>
 
