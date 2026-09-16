@@ -8,6 +8,8 @@ export const PAYWALL_V2_ADDRESS =
   (process.env.NEXT_PUBLIC_ARC_PAYWALL_V2_ADDRESS ??
     process.env.ARC_PAYWALL_V2_ADDRESS ??
     '') as `0x${string}` | ''
+export const PAYWALL_V2_PRICE_SNAPSHOTS =
+  process.env.NEXT_PUBLIC_PAYWALL_PRICE_SNAPSHOTS === 'true'
 
 export const PAYWALL_V1_ABI = [
   {
@@ -183,6 +185,22 @@ export const PAYWALL_V2_ABI = [
       { name: 'clientNonces', type: 'uint256[]' },
       { name: 'deadlines', type: 'uint256[]' },
       { name: 'paymentAmounts', type: 'uint256[]' },
+      { name: 'signatures', type: 'bytes[]' },
+    ],
+    outputs: [],
+  },
+] as const
+
+export const PAYWALL_V2_LEGACY_REDEEM_ABI = [
+  {
+    name: 'redeemBatch',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'serviceIds', type: 'bytes32[]' },
+      { name: 'clients', type: 'address[]' },
+      { name: 'clientNonces', type: 'uint256[]' },
+      { name: 'deadlines', type: 'uint256[]' },
       { name: 'signatures', type: 'bytes[]' },
     ],
     outputs: [],

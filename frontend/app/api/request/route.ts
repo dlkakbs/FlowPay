@@ -1,7 +1,15 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { enqueueItem } from '@/lib/nonceReserver'
 import { settleBatch, BATCH_SIZE } from '@/lib/batchSettler'
-import { IS_PAYWALL_V2, PAYWALL_ADDRESS, PAYWALL_V1_ABI, PAYWALL_V2_ABI, arcChain } from '@/lib/arcChain'
+import {
+  IS_PAYWALL_V2,
+  PAYWALL_ADDRESS,
+  PAYWALL_V1_ABI,
+  PAYWALL_V2_ABI,
+  PAYWALL_V2_LEGACY_REDEEM_ABI,
+  PAYWALL_V2_PRICE_SNAPSHOTS,
+  arcChain,
+} from '@/lib/arcChain'
 import { getArcDocsAnswer } from '@/lib/arcDocs'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -149,13 +157,29 @@ async function triggerBatchSettle(clientAddress: string, pricePerRequest: bigint
     onChainNonce,
     pricePerRequest,
     async ({ serviceIds, clients, nonces, deadlines, paymentAmounts, signatures }) => {
+      if (IS_PAYWALL_V2 && PAYWALL_V2_PRICE_SNAPSHOTS) {
+        return walletClient.writeContract({
+          address: PAYWALL_ADDRESS,
+          abi: PAYWALL_V2_ABI,
+          functionName: 'redeemBatch',
+          args: [serviceIds as `0x${string}`[], clients as `0x${string}`[], nonces, deadlines, paymentAmounts, signatures as `0x${string}`[]],
+        })
+      }
+
+      if (IS_PAYWALL_V2) {
+        return walletClient.writeContract({
+          address: PAYWALL_ADDRESS,
+          abi: PAYWALL_V2_LEGACY_REDEEM_ABI,
+          functionName: 'redeemBatch',
+          args: [serviceIds as `0x${string}`[], clients as `0x${string}`[], nonces, deadlines, signatures as `0x${string}`[]],
+        })
+      }
+
       const hash = await walletClient.writeContract({
         address: PAYWALL_ADDRESS,
-        abi: IS_PAYWALL_V2 ? PAYWALL_V2_ABI : PAYWALL_V1_ABI,
+        abi: PAYWALL_V1_ABI,
         functionName: 'redeemBatch',
-        args: IS_PAYWALL_V2
-          ? [serviceIds as `0x${string}`[], clients as `0x${string}`[], nonces, deadlines, paymentAmounts, signatures as `0x${string}`[]]
-          : [clients as `0x${string}`[], nonces, deadlines, signatures as `0x${string}`[]],
+        args: [clients as `0x${string}`[], nonces, deadlines, signatures as `0x${string}`[]],
       })
       return hash
     },
