@@ -13,7 +13,6 @@ import {
   Wallet,
   Waves,
 } from "lucide-react";
-import { ARC_MAINNET_EXPLORER_URL } from "@/lib/arcNetwork";
 
 const FEATURES = [
   {
@@ -280,19 +279,6 @@ export default function HomePage() {
         </Section>
       </main>
 
-      <div className="flex justify-end px-6 pb-8 md:px-10 lg:px-12">
-        <div className="flex items-center gap-3">
-          <a
-            href={ARC_MAINNET_EXPLORER_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs font-medium text-white/55 backdrop-blur-md hover:text-white/80 transition"
-          >
-            Arc Explorer
-            <ArrowUpRight className="h-3 w-3" />
-          </a>
-        </div>
-      </div>
     </div>
   );
 }
