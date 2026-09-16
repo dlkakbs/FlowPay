@@ -3,8 +3,10 @@ import {
   reserveNonce,
   markSubmitted,
   enqueueItem,
+  getPendingAmount,
 } from '../lib/nonceReserver'
 import { settleBatch } from '../lib/batchSettler'
+import { paymentRedisKey } from '../lib/storageKeys'
 import {
   createTestRedis,
   resetRedis,
@@ -24,44 +26,33 @@ beforeEach(async () => {
   await resetRedis(redis)
 })
 
-// ─── Senaryo 1: Aynı anda 2 nonce isteği ─────────────────────────────────
-describe('Senaryo 1: Concurrent nonce requests', () => {
-  it('iki eş zamanlı isteğe farklı nonce atamalı', async () => {
+// ─── Senaryo 1: Cüzdan başına sıralı nonce rezervasyonu ──────────────────
+describe('Senaryo 1: Serialized nonce reservations', () => {
+  it('aynı cüzdan için yalnızca bir açık rezervasyona izin vermeli', async () => {
     const readContract = makeReadContract({ [CLIENT]: 0 })
 
-    const [a, b] = await Promise.all([
-      reserveNonce(CLIENT, readContract),
-      reserveNonce(CLIENT, readContract),
-    ])
-
-    expect(a.nonce).not.toBe(b.nonce)
-    expect(Math.abs(a.nonce - b.nonce)).toBe(1)
+    const first = await reserveNonce(CLIENT, readContract)
+    expect(first.nonce).toBe(0)
+    await expect(reserveNonce(CLIENT, readContract)).rejects.toThrow('pending')
   })
 
-  it('her rezervasyon farklı reservationId almalı', async () => {
+  it('enqueue sonrası bir sonraki nonce ardışık olmalı', async () => {
     const readContract = makeReadContract({ [CLIENT]: 0 })
 
-    const [a, b] = await Promise.all([
-      reserveNonce(CLIENT, readContract),
-      reserveNonce(CLIENT, readContract),
-    ])
+    const first = await reserveNonce(CLIENT, readContract)
+    const submitted = await markSubmitted(first.reservationId)
+    expect(submitted).not.toBeNull()
+    await enqueueItem(CLIENT, first.nonce, futureDeadline(), '0xsig', undefined, PRICE, first.reservationId)
 
-    expect(a.reservationId).not.toBe(b.reservationId)
+    const second = await reserveNonce(CLIENT, readContract)
+    expect(second.nonce).toBe(1)
   })
 
-  it('10 eş zamanlı istek → 10 farklı nonce, ardışık', async () => {
-    const readContract = makeReadContract({ [CLIENT]: 0 })
+  it('queued ödemelerin gerçek USDC tutarını toplamalı', async () => {
+    await enqueueItem(CLIENT, 0, futureDeadline(), '0xsig0', undefined, 2n * PRICE)
+    await enqueueItem(CLIENT, 1, futureDeadline(), '0xsig1', undefined, 3n * PRICE)
 
-    const results = await Promise.all(
-      Array.from({ length: 10 }, () => reserveNonce(CLIENT, readContract))
-    )
-
-    const nonces = results.map(r => r.nonce).sort((a, b) => a - b)
-    const unique = new Set(nonces)
-
-    expect(unique.size).toBe(10)
-    expect(nonces[0]).toBe(0)
-    expect(nonces[9]).toBe(9)
+    expect(await getPendingAmount(CLIENT)).toBe(5n * PRICE)
   })
 })
 
@@ -79,13 +70,14 @@ describe('Senaryo 2: Duplicate request (idempotency)', () => {
     expect(second).toBeNull() // reddedildi
   })
 
-  it('farklı reservationId ile gelen istek kabul edilmeli', async () => {
+  it('ilk rezervasyon enqueue edilince yeni reservationId kabul edilmeli', async () => {
     const readContract = makeReadContract({ [CLIENT]: 0 })
 
     const r1 = await reserveNonce(CLIENT, readContract)
-    const r2 = await reserveNonce(CLIENT, readContract)
-
     const s1 = await markSubmitted(r1.reservationId)
+    await enqueueItem(CLIENT, r1.nonce, futureDeadline(), '0xsig', undefined, PRICE, r1.reservationId)
+
+    const r2 = await reserveNonce(CLIENT, readContract)
     const s2 = await markSubmitted(r2.reservationId)
 
     expect(s1?.state).toBe('submitted')
@@ -100,23 +92,24 @@ describe('Senaryo 3: Late signature after reservation timeout', () => {
     const { reservationId } = await reserveNonce(CLIENT, readContract)
 
     // TTL expire simülasyonu — key'i manuel sil
-    await redis.del(`reservation:${reservationId}`)
+    await redis.del(paymentRedisKey(`reservation:${reservationId}`))
 
     const result = await markSubmitted(reservationId)
     expect(result).toBeNull()
   })
 
-  it('expired nonce reallocate edilmemeli — gap kabul edilir', async () => {
+  it('expired rezervasyon nonce gap oluşturmadan yeniden ayrılmalı', async () => {
     const readContract = makeReadContract({ [CLIENT]: 0 })
 
     // Nonce 0 rezerve et, expire et
     const { nonce: n0, reservationId: r0 } = await reserveNonce(CLIENT, readContract)
     expect(n0).toBe(0)
-    await redis.del(`reservation:${r0}`)
+    await redis.del(paymentRedisKey(`reservation:${r0}`))
+    await redis.del(paymentRedisKey(`reservation-slot:${CLIENT.toLowerCase()}`))
 
-    // Yeni istek → nonce 1 almalı (0 tekrar verilmez, gap oluşur)
+    // Yeni istek aynı on-chain nonce'u güvenle yeniden kullanır.
     const { nonce: n1 } = await reserveNonce(CLIENT, readContract)
-    expect(n1).toBe(1) // 0 değil
+    expect(n1).toBe(0)
   })
 
   it('süresi geçmiş deadline ile settle batch item skip etmeli', async () => {

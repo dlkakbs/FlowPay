@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { injected } from "wagmi/connectors";
+import { injected, useAccount, useConnect, useDisconnect } from "wagmi";
 import { useSyncExternalStore } from "react";
 
 const NAV = [

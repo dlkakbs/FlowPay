@@ -6,9 +6,7 @@ import "../src/ArcInvoice.sol";
 
 contract DeployArcInvoice is Script {
     function run() external {
-        uint256 deployerKey = vm.envUint("PRIVATE_KEY");
-
-        vm.startBroadcast(deployerKey);
+        vm.startBroadcast();
         ArcInvoice invoice = new ArcInvoice();
         vm.stopBroadcast();
 

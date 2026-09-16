@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 /// @title  ArcFlow
-/// @notice Arc Testnet'te native USDC ile streaming payment.
+/// @notice Arc üzerinde native USDC ile streaming payment.
 ///         Payer USDC yatırır, recipient her saniye kazanır, istediği an çeker.
 ///
 ///  Matematik:
@@ -28,6 +28,7 @@ contract ArcFlow {
 
     uint256 public streamCount;
     mapping(uint256 => Stream) public streams;
+    uint256 private locked = 1;
 
     // ─── Events ───────────────────────────────────────────────────────────
 
@@ -51,6 +52,15 @@ contract ArcFlow {
     error NotPayer();
     error NotRecipient();
     error NothingToWithdraw();
+    error TransferFailed();
+    error ReentrantCall();
+
+    modifier nonReentrant() {
+        if (locked != 1) revert ReentrantCall();
+        locked = 2;
+        _;
+        locked = 1;
+    }
 
     // ─── Payer: Stream aç ─────────────────────────────────────────────────
 
@@ -78,7 +88,7 @@ contract ArcFlow {
 
     // ─── Recipient: Birikeni çek ──────────────────────────────────────────
 
-    function withdraw(uint256 id) external {
+    function withdraw(uint256 id) external nonReentrant {
         Stream storage s = streams[id];
         if (!s.active)              revert NotActive();
         if (msg.sender != s.recipient) revert NotRecipient();
@@ -87,14 +97,14 @@ contract ArcFlow {
         if (amount == 0) revert NothingToWithdraw();
 
         s.withdrawn += amount;
-        payable(s.recipient).transfer(amount);
+        _sendValue(payable(s.recipient), amount);
 
         emit Withdrawn(id, s.recipient, amount);
     }
 
     // ─── Payer: Stream'i iptal et ─────────────────────────────────────────
 
-    function cancelStream(uint256 id) external {
+    function cancelStream(uint256 id) external nonReentrant {
         Stream storage s = streams[id];
         if (!s.active)           revert NotActive();
         if (msg.sender != s.payer) revert NotPayer();
@@ -104,8 +114,8 @@ contract ArcFlow {
 
         s.active = false;
 
-        if (recipientAmount > 0) payable(s.recipient).transfer(recipientAmount);
-        if (payerRefund > 0)     payable(s.payer).transfer(payerRefund);
+        if (recipientAmount > 0) _sendValue(payable(s.recipient), recipientAmount);
+        if (payerRefund > 0)     _sendValue(payable(s.payer), payerRefund);
 
         emit StreamCanceled(id, recipientAmount, payerRefund);
     }
@@ -158,5 +168,10 @@ contract ArcFlow {
     function monthlyToRate(uint256 monthlyUsdc) external pure returns (uint256) {
         // 30 gün = 2_592_000 saniye
         return monthlyUsdc / 2_592_000;
+    }
+
+    function _sendValue(address payable recipient, uint256 amount) internal {
+        (bool success, ) = recipient.call{value: amount}("");
+        if (!success) revert TransferFailed();
     }
 }

@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto'
 import { getRedis } from './nonceReserver'
+import { paymentRedisKey } from './storageKeys'
 
 export interface PublicServiceRecord {
   serviceId: string
@@ -14,10 +15,10 @@ export interface ServiceRecord extends PublicServiceRecord {
   endpoint: string
 }
 
-const REGISTRY_KEY = 'arcflow:services'
+const REGISTRY_KEY = paymentRedisKey('services')
 
 function endpointKey(serviceId: string) {
-  return `arcflow:service-endpoint:${serviceId}`
+  return paymentRedisKey(`service-endpoint:${serviceId}`)
 }
 
 async function readPublicRegistry(): Promise<PublicServiceRecord[]> {

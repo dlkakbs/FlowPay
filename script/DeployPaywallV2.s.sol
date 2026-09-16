@@ -6,12 +6,16 @@ import "../src/ArcPaywallV2.sol";
 
 contract DeployArcPaywallV2 is Script {
     function run() external {
-        uint256 deployerKey = vm.envUint("PRIVATE_KEY");
+        address settler = vm.envOr("SETTLER_ADDRESS", address(0));
 
-        vm.startBroadcast(deployerKey);
+        vm.startBroadcast();
         ArcPaywallV2 paywall = new ArcPaywallV2();
+        if (settler != address(0)) {
+            paywall.setSettler(settler);
+        }
         vm.stopBroadcast();
 
         console.log("ArcPaywallV2 deployed:", address(paywall));
+        console.log("Settlement signer override:", settler);
     }
 }

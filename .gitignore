@@ -13,3 +13,4 @@ frontend/.next/
 
 # macOS
 .DS_Store
+.vercel

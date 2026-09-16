@@ -1,11 +1,12 @@
 import {
   getQueueItems,
+  removeQueuedFrom,
   removeSettled,
   syncPendingCounter,
-  ARC_CHAIN_ID,
 } from './nonceReserver'
 import { keccak256, encodePacked } from 'viem'
 import { IS_PAYWALL_V2, PAYWALL_ADDRESS } from './arcChain'
+import { ARC_CHAIN_ID } from './arcNetwork'
 
 export const BATCH_SIZE = 50
 export const BATCH_INTERVAL_MS = 10 * 60 * 1000 // 10 dakika
@@ -66,6 +67,7 @@ export async function settleBatch(
     clients: string[]
     nonces: bigint[]
     deadlines: bigint[]
+    paymentAmounts: bigint[]
     signatures: string[]
   }) => Promise<string>,
   readNonceAfterWrite?: (clientAddress: string) => Promise<number>
@@ -84,6 +86,8 @@ export async function settleBatch(
     // Süresi geçmiş → skip
     if (item.deadline <= now) {
       skipped.push(item.nonce)
+      await removeQueuedFrom(clientAddress, item.nonce)
+      await syncPendingCounter(clientAddress)
       break
     }
     // On-chain nonce'dan küçük → zaten settled → skip
@@ -102,6 +106,7 @@ export async function settleBatch(
     clients: valid.map(() => clientAddress),
     nonces: valid.map(i => BigInt(i.nonce)),
     deadlines: valid.map(i => BigInt(i.deadline)),
+    paymentAmounts: valid.map(i => BigInt(i.pricePerRequest)),
     signatures: valid.map(i => i.signature),
   })
 

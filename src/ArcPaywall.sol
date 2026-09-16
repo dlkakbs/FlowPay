@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 /// @title  ArcPaywall
-/// @notice Arc Testnet'te native USDC ile per-request ödeme.
+/// @notice Arc üzerinde native USDC ile per-request ödeme.
 ///         Client önceden USDC yatırır, her request için off-chain imzalar.
 ///         Agent owner imzaları toplu olarak on-chain redeem eder.
 ///

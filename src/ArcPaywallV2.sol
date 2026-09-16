@@ -11,11 +11,15 @@ contract ArcPaywallV2 {
     }
 
     uint256 public constant MAX_DEPOSIT = 10 ether;
+    uint256 public constant MAX_BATCH_SIZE = 50;
     uint256 public constant OWNER_TIMEOUT = 7 days;
 
     address public owner;
+    address public pendingOwner;
+    address public settler;
     uint256 public lastOwnerAction;
     uint256 public serviceCount;
+    uint256 private locked = 1;
 
     mapping(address => uint256) public deposits;
     mapping(address => uint256) public nonces;
@@ -31,8 +35,13 @@ contract ArcPaywallV2 {
     event RequestPaid(bytes32 indexed serviceId, address indexed client, uint256 nonce, uint256 amount);
     event ProviderWithdrawal(address indexed provider, uint256 amount);
     event EscapeWithdraw(address indexed client, uint256 amount);
+    event SettlerUpdated(address indexed previousSettler, address indexed newSettler);
+    event OwnershipTransferStarted(address indexed currentOwner, address indexed pendingOwner);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     error NotOwner();
+    error NotPendingOwner();
+    error NotSettler();
     error NotServiceOwner();
     error ZeroDeposit();
     error DepositExceedsMax();
@@ -44,11 +53,50 @@ contract ArcPaywallV2 {
     error InvalidServiceOwner();
     error InvalidPrice();
     error ArrayLengthMismatch();
+    error BatchTooLarge();
     error InsufficientDeposit();
+    error ZeroAddress();
+    error TransferFailed();
+    error ReentrantCall();
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert NotOwner();
+        _;
+    }
+
+    modifier nonReentrant() {
+        if (locked != 1) revert ReentrantCall();
+        locked = 2;
+        _;
+        locked = 1;
+    }
 
     constructor() {
         owner = msg.sender;
+        settler = msg.sender;
         lastOwnerAction = block.timestamp;
+    }
+
+    function setSettler(address newSettler) external onlyOwner {
+        if (newSettler == address(0)) revert ZeroAddress();
+        address previousSettler = settler;
+        settler = newSettler;
+        lastOwnerAction = block.timestamp;
+        emit SettlerUpdated(previousSettler, newSettler);
+    }
+
+    function transferOwnership(address newOwner) external onlyOwner {
+        if (newOwner == address(0)) revert ZeroAddress();
+        pendingOwner = newOwner;
+        emit OwnershipTransferStarted(owner, newOwner);
+    }
+
+    function acceptOwnership() external {
+        if (msg.sender != pendingOwner) revert NotPendingOwner();
+        address previousOwner = owner;
+        owner = pendingOwner;
+        pendingOwner = address(0);
+        emit OwnershipTransferred(previousOwner, owner);
     }
 
     function deposit() external payable {
@@ -58,20 +106,20 @@ contract ArcPaywallV2 {
         emit Deposited(msg.sender, msg.value);
     }
 
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount) external nonReentrant {
         if (amount == 0) revert NothingToWithdraw();
         if (deposits[msg.sender] < amount) revert InsufficientDeposit();
         deposits[msg.sender] -= amount;
-        payable(msg.sender).transfer(amount);
+        _sendValue(payable(msg.sender), amount);
         emit Withdrawn(msg.sender, amount);
     }
 
-    function emergencyWithdraw() external {
+    function emergencyWithdraw() external nonReentrant {
         if (block.timestamp < lastOwnerAction + OWNER_TIMEOUT) revert OwnerStillActive();
         uint256 amount = deposits[msg.sender];
         if (amount == 0) revert NothingToWithdraw();
         deposits[msg.sender] = 0;
-        payable(msg.sender).transfer(amount);
+        _sendValue(payable(msg.sender), amount);
         emit EscapeWithdraw(msg.sender, amount);
     }
 
@@ -117,29 +165,39 @@ contract ArcPaywallV2 {
         address[] calldata clients,
         uint256[] calldata clientNonces,
         uint256[] calldata deadlines,
+        uint256[] calldata paymentAmounts,
         bytes[] calldata signatures
     ) external {
-        if (msg.sender != owner) revert NotOwner();
+        if (msg.sender != settler) revert NotSettler();
         lastOwnerAction = block.timestamp;
 
         uint256 len = clients.length;
+        if (len > MAX_BATCH_SIZE) revert BatchTooLarge();
         if (
             serviceIds.length != len ||
             clientNonces.length != len ||
             deadlines.length != len ||
+            paymentAmounts.length != len ||
             signatures.length != len
         ) revert ArrayLengthMismatch();
 
         for (uint256 i = 0; i < len; i++) {
-            _redeemSingle(serviceIds[i], clients[i], clientNonces[i], deadlines[i], signatures[i]);
+            _redeemSingle(
+                serviceIds[i],
+                clients[i],
+                clientNonces[i],
+                deadlines[i],
+                paymentAmounts[i],
+                signatures[i]
+            );
         }
     }
 
-    function withdrawProviderEarnings() external {
+    function withdrawProviderEarnings() external nonReentrant {
         uint256 amount = claimable[msg.sender];
         if (amount == 0) revert NothingToWithdraw();
         claimable[msg.sender] = 0;
-        payable(msg.sender).transfer(amount);
+        _sendValue(payable(msg.sender), amount);
         emit ProviderWithdrawal(msg.sender, amount);
     }
 
@@ -170,14 +228,15 @@ contract ArcPaywallV2 {
         address client,
         uint256 nonce,
         uint256 deadline,
+        uint256 paymentAmount,
         bytes calldata signature
     ) internal {
         Service memory service = services[serviceId];
         if (service.owner == address(0)) return;
-        if (!service.active) return;
         if (block.timestamp > deadline) return;
 
-        uint256 price = service.pricePerRequest;
+        uint256 price = paymentAmount;
+        if (price == 0) return;
         if (nonce != nonces[client]) return;
         if (deposits[client] < price) return;
 
@@ -206,5 +265,10 @@ contract ArcPaywallV2 {
         }
         if (v < 27) v += 27;
         return ecrecover(hash, v, r, s);
+    }
+
+    function _sendValue(address payable recipient, uint256 amount) internal {
+        (bool success, ) = recipient.call{value: amount}("");
+        if (!success) revert TransferFailed();
     }
 }

@@ -1,3 +1,5 @@
+import { ARC_EXPLORER_URL, ARC_NETWORK, ARC_RPC_URL, ARC_CHAIN_ID } from './arcNetwork'
+
 export interface ArcDocMatch {
   title: string
   url: string
@@ -15,7 +17,7 @@ interface ArcDocEntry {
 const ARC_DOCS: ArcDocEntry[] = [
   {
     title: 'Welcome to Arc',
-    url: 'https://docs.arc.network/arc/concepts/welcome-to-arc',
+    url: 'https://docs.arc.io/arc-chain',
     summary:
       'Arc is an open Layer-1 designed for real-world economic activity. It is EVM-compatible, uses stablecoins as gas starting with USDC, offers deterministic sub-second finality, and is built to support payments, capital markets, FX, and agentic commerce.',
     keywords: [
@@ -36,9 +38,9 @@ const ARC_DOCS: ArcDocEntry[] = [
   },
   {
     title: 'Connect to Arc',
-    url: 'https://docs.arc.network/arc/references/connect-to-arc',
+    url: 'https://docs.arc.io/arc/references/connect-to-arc',
     summary:
-      'Arc Testnet network details: RPC https://rpc.testnet.arc.network, WebSocket wss://rpc.testnet.arc.network, Chain ID 5042002, currency USDC, explorer https://testnet.arcscan.app, and faucet https://faucet.circle.com.',
+      `Arc ${ARC_NETWORK} network details: RPC ${ARC_RPC_URL}, Chain ID ${ARC_CHAIN_ID}, currency USDC, and explorer ${ARC_EXPLORER_URL}.`,
     keywords: [
       'connect',
       'wallet',
@@ -57,9 +59,9 @@ const ARC_DOCS: ArcDocEntry[] = [
   },
   {
     title: 'Gas and Fees',
-    url: 'https://docs.arc.network/arc/references/gas-and-fees',
+    url: 'https://docs.arc.io/arc/references/gas-and-fees',
     summary:
-      'Arc uses USDC as the native gas token. On testnet, the minimum base fee is around 160 Gwei and targets roughly $0.01 per transaction. Docs recommend surfacing gas fees in USDC and setting maxFeePerGas at or above 160 Gwei for timely inclusion.',
+      'Arc uses USDC as the native gas token. The current protocol floor is 20 Gwei and fees use EIP-1559 with EWMA smoothing. Apps should display gas fees in USDC and query the RPC before submitting.',
     keywords: [
       'gas',
       'fees',
@@ -75,7 +77,7 @@ const ARC_DOCS: ArcDocEntry[] = [
   },
   {
     title: 'Stable Fee Design',
-    url: 'https://docs.arc.network/arc/concepts/stable-fee-design',
+    url: 'https://docs.arc.io/arc/concepts/stable-fee-design',
     summary:
       'Arc prices gas in USDC and smooths fee changes with an exponentially weighted moving average rather than abrupt block-by-block jumps. The stated goal is predictable, auditable fees around one cent on average.',
     keywords: [
@@ -91,7 +93,7 @@ const ARC_DOCS: ArcDocEntry[] = [
   },
   {
     title: 'EVM Compatibility',
-    url: 'https://docs.arc.network/arc/references/evm-compatibility',
+    url: 'https://docs.arc.io/arc/references/evm-differences',
     summary:
       'Arc supports Ethereum tooling such as Solidity, Foundry, and Hardhat while changing a few execution assumptions: USDC is the native gas token, finality is immediate, timestamps may repeat, block.prevrandao is always zero, and native USDC uses 18 decimals while the optional ERC-20 interface uses 6 decimals.',
     keywords: [
@@ -112,7 +114,7 @@ const ARC_DOCS: ArcDocEntry[] = [
   },
   {
     title: 'System Overview',
-    url: 'https://docs.arc.network/arc/concepts/system-overview',
+    url: 'https://docs.arc.io/arc/concepts/system-overview',
     summary:
       'Arc combines the Malachite consensus layer with the Reth execution layer. The docs describe deterministic finality, irreversibility, Proof-of-Authority style validator operation, and execution modules for stablecoin-native finance.',
     keywords: [
@@ -130,9 +132,9 @@ const ARC_DOCS: ArcDocEntry[] = [
   },
   {
     title: 'Contract Addresses',
-    url: 'https://docs.arc.network/arc/references/contract-addresses',
+    url: 'https://docs.arc.io/arc/references/contract-addresses',
     summary:
-      'The docs list official Arc Testnet contract addresses. For USDC, the optional ERC-20 interface address is 0x3600000000000000000000000000000000000000 and interacts with the native USDC balance.',
+      'The docs list official Arc Mainnet and Testnet contract addresses. The optional USDC ERC-20 interface is 0x3600000000000000000000000000000000000000 on both networks and shares the native USDC balance.',
     keywords: [
       'contract address',
       'addresses',

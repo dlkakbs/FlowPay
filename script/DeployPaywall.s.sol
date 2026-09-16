@@ -6,12 +6,10 @@ import "../src/ArcPaywall.sol";
 
 contract DeployArcPaywall is Script {
     function run() external {
-        uint256 deployerKey = vm.envUint("PRIVATE_KEY");
-
         // 0.001 native USDC = 1e15 (18 decimals)
         uint256 pricePerRequest = 1e15;
 
-        vm.startBroadcast(deployerKey);
+        vm.startBroadcast();
         ArcPaywall paywall = new ArcPaywall(pricePerRequest);
         vm.stopBroadcast();
 

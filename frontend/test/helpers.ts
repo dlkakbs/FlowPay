@@ -19,6 +19,7 @@ export function makeWriteContract(settled: number[][] = []) {
     clients: string[]
     nonces: bigint[]
     deadlines: bigint[]
+    paymentAmounts: bigint[]
     signatures: string[]
   }): Promise<string> => {
     settled.push(args.nonces.map(Number))

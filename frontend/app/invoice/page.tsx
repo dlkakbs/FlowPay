@@ -7,6 +7,7 @@ import { useAutoHide } from "@/lib/useAutoHide";
 import { decodeEventLog } from "viem";
 import { CONTRACTS } from "@/lib/wagmi";
 import { formatNativeUsdc, parseNativeUsdc } from "@/lib/nativeUsdc";
+import { arcTxUrl } from "@/lib/arcNetwork";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 
 const ABI = [
@@ -283,7 +284,7 @@ export default function InvoicePage() {
                         <p>Invoice created. Open the explorer to find your invoice ID.</p>
                       )}
                       <a
-                        href={`https://testnet.arcscan.app/tx/${createHash}`}
+                        href={arcTxUrl(createHash)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
@@ -381,7 +382,7 @@ export default function InvoicePage() {
                     <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                       <p>Payment confirmed. Funds have been sent to the invoice creator.</p>
                       <a
-                        href={`https://testnet.arcscan.app/tx/${payHash}`}
+                        href={arcTxUrl(payHash)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"

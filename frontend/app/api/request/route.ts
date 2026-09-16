@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { enqueueItem } from '@/lib/nonceReserver'
 import { settleBatch, BATCH_SIZE } from '@/lib/batchSettler'
-import { IS_PAYWALL_V2, PAYWALL_ADDRESS, PAYWALL_V1_ABI, PAYWALL_V2_ABI, arcTestnet } from '@/lib/arcChain'
+import { IS_PAYWALL_V2, PAYWALL_ADDRESS, PAYWALL_V1_ABI, PAYWALL_V2_ABI, arcChain } from '@/lib/arcChain'
 import { getArcDocsAnswer } from '@/lib/arcDocs'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -12,17 +12,18 @@ import {
   readCachedResponse,
   verifyPaidRequest,
 } from '@/lib/paywallPayment'
+import { IS_ARC_MAINNET } from '@/lib/arcNetwork'
 
 function getArcAiResponse(prompt: string): string {
   const q = prompt.toLowerCase()
 
   // FlowPay / Arc specific
-  if (q.includes('flowpay') || q.includes('arcflow')) return 'FlowPay is payment infrastructure built on Arc Testnet. It has three primitives: Stream for continuous payments, Invoice for one-time requests, and Paywall for per-request micropayments — all settled in native USDC.'
+  if (q.includes('flowpay') || q.includes('arcflow')) return `FlowPay is payment infrastructure built on ${IS_ARC_MAINNET ? 'Arc Mainnet' : 'Arc Testnet'}. It has three primitives: Stream for continuous payments, Invoice for one-time requests, and Paywall for per-request micropayments — all settled in native USDC.`
   if (q.includes('stream') && (q.includes('payment') || q.includes('salary') || q.includes('retainer'))) return 'Payment streams on FlowPay accrue every second. The payer deposits USDC upfront and sets a monthly rate; the recipient can withdraw their earned balance at any time without asking the payer.'
   if (q.includes('invoice'))      return 'FlowPay invoices are settled on-chain. The creator sets an amount and description, shares the invoice ID, and the payer sends USDC directly to the contract. No intermediary, no chargebacks.'
   if (q.includes('paywall'))      return 'The Paywall model lets users deposit USDC once and consume request credits over time. Each API call deducts one credit off-chain using a signed message — no gas per request. A batch settler rolls up signatures on-chain periodically.'
   if (q.includes('arc testnet') || q.includes('arc chain') || q.includes('arc network')) return 'Arc is a high-throughput EVM-compatible chain with native USDC support. It enables sub-cent transactions, making micropayments and streaming payments practical for the first time.'
-  if (q.includes('usdc'))         return 'FlowPay uses Circle\'s native USDC on Arc Testnet. Because Arc has very low fees, even 0.001 USDC per-request payments are economically viable — something impossible on Ethereum mainnet.'
+  if (q.includes('usdc'))         return `FlowPay uses Circle's native USDC on ${IS_ARC_MAINNET ? 'Arc Mainnet' : 'Arc Testnet'}. Because Arc has very low fees, even 0.001 USDC per-request payments are economically viable.`
   if (q.includes('batch') || q.includes('settle')) return 'FlowPay\'s batch settlement collects off-chain signed payment authorizations and submits them in a single transaction. This reduces gas costs dramatically — 50 payments cost the same as 1 on-chain transfer.'
 
   // Crypto / Web3
@@ -83,7 +84,15 @@ export async function POST(req: NextRequest) {
   })
 
   // ── Queue'ya ekle ─────────────────────────────────────────────────────
-  await enqueueItem(clientAddress, reservation.nonce, deadline, signature, reservation.serviceId)
+  await enqueueItem(
+    clientAddress,
+    reservation.nonce,
+    deadline,
+    signature,
+    reservation.serviceId,
+    pricePerRequest,
+    reservation.reservationId
+  )
 
   // ── Batch threshold kontrolü → settle ─────────────────────────────────
   const { pendingQueued } = await getCreditsSnapshot(clientAddress, reservation.serviceId)
@@ -129,7 +138,7 @@ async function triggerBatchSettle(clientAddress: string, pricePerRequest: bigint
   const account = privateKeyToAccount(process.env.OWNER_PRIVATE_KEY as `0x${string}`)
   const walletClient = createWalletClient({
     account,
-    chain: arcTestnet,
+    chain: arcChain,
     transport: http(),
   })
 
@@ -139,13 +148,13 @@ async function triggerBatchSettle(clientAddress: string, pricePerRequest: bigint
     clientAddress,
     onChainNonce,
     pricePerRequest,
-    async ({ serviceIds, clients, nonces, deadlines, signatures }) => {
+    async ({ serviceIds, clients, nonces, deadlines, paymentAmounts, signatures }) => {
       const hash = await walletClient.writeContract({
         address: PAYWALL_ADDRESS,
         abi: IS_PAYWALL_V2 ? PAYWALL_V2_ABI : PAYWALL_V1_ABI,
         functionName: 'redeemBatch',
         args: IS_PAYWALL_V2
-          ? [serviceIds as `0x${string}`[], clients as `0x${string}`[], nonces, deadlines, signatures as `0x${string}`[]]
+          ? [serviceIds as `0x${string}`[], clients as `0x${string}`[], nonces, deadlines, paymentAmounts, signatures as `0x${string}`[]]
           : [clients as `0x${string}`[], nonces, deadlines, signatures as `0x${string}`[]],
       })
       return hash

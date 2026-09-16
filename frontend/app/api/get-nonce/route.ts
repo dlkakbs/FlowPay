@@ -7,7 +7,7 @@ import {
   publicClient,
 } from '@/lib/arcChain'
 import { reserveNonce } from '@/lib/nonceReserver'
-import { getOnChainNonce, getSignatureDeadline } from '@/lib/paywallPayment'
+import { getCreditsSnapshot, getOnChainNonce, getSignatureDeadline } from '@/lib/paywallPayment'
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,36 +21,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid service id' }, { status: 400 })
     }
 
-    const pricePerRequest =
+    const service =
       IS_PAYWALL_V2 && serviceId
         ? (await publicClient.readContract({
             address: PAYWALL_ADDRESS,
             abi: PAYWALL_V2_ABI,
             functionName: 'getService',
             args: [serviceId as `0x${string}`],
-          })).pricePerRequest
+          }))
         : await publicClient.readContract({
             address: PAYWALL_ADDRESS,
             abi: PAYWALL_V1_ABI,
             functionName: 'pricePerRequest',
           })
 
-    const remaining =
-      IS_PAYWALL_V2 && serviceId
-        ? await publicClient.readContract({
-            address: PAYWALL_ADDRESS,
-            abi: PAYWALL_V2_ABI,
-            functionName: 'requestsRemaining',
-            args: [clientAddress as `0x${string}`, serviceId as `0x${string}`],
-          })
-        : await publicClient.readContract({
-            address: PAYWALL_ADDRESS,
-            abi: PAYWALL_V1_ABI,
-            functionName: 'requestsRemaining',
-            args: [clientAddress as `0x${string}`],
-          })
+    if (IS_PAYWALL_V2 && typeof service !== 'bigint' && !service.active) {
+      return NextResponse.json({ error: 'Service is inactive.' }, { status: 409 })
+    }
 
-    if (remaining === 0n) {
+    const pricePerRequest = typeof service === 'bigint' ? service : service.pricePerRequest
+    const { availableCredits } = await getCreditsSnapshot(clientAddress, serviceId)
+
+    if (availableCredits === 0n) {
       return NextResponse.json(
         { error: 'No credits remaining. Deposit USDC to continue.' },
         { status: 402 }

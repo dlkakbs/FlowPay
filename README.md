@@ -2,13 +2,13 @@
 
 **Payment infrastructure on Arc — streaming, invoicing, and paywalls powered by native USDC.**
 
-Live demo: [flowonarc.vercel.app](https://flowonarc.vercel.app)
+Live demo: [flowonarc.net](https://flowonarc.net)
 
 ---
 
 ## What is FlowPay?
 
-FlowPay is a payment layer built on Arc Testnet. Think Stripe, but on-chain — no intermediaries, no chargebacks, settlement in native USDC. It ships three composable payment primitives:
+FlowPay is a payment layer built for Arc Mainnet, with Arc Testnet retained for staging. Think Stripe, but on-chain — no intermediaries, no chargebacks, settlement in native USDC. It ships three composable payment primitives:
 
 | Module | What it does |
 |--------|-------------|
@@ -30,7 +30,7 @@ For FlowPay this means:
 - Users deposit USDC and consume credits — no separate gas wallet required
 - Per-request costs are predictable in dollar terms, not subject to gas market swings
 
-Arc achieves this through a dual USDC interface: as the native gas token it uses 18 decimals internally for metering; as an ERC-20 it uses the standard 6 decimals. A precompiled contract synchronizes both representations automatically. FlowPay uses the 6-decimal ERC-20 interface consistently throughout.
+Arc exposes one USDC balance through two interfaces: native value uses 18 decimals while the optional ERC-20 interface uses 6 decimals. FlowPay's payment contracts use the native 18-decimal value interface and never mix raw values from the two representations.
 
 ### Sub-Cent Transaction Costs
 
@@ -52,7 +52,7 @@ Arc is built by Circle and is natively integrated into Circle's USDC issuance in
 
 ### EVM Compatibility
 
-Arc is fully EVM-compatible. FlowPay's contracts are standard Solidity, built with Foundry, and verifiable on [ArcScan](https://testnet.arcscan.app). Any Ethereum developer can read, fork, or extend them without learning new tooling.
+Arc is EVM-compatible. FlowPay's contracts are standard Solidity and built with Foundry. Mainnet transactions use [Arc Explorer](https://explorer.arc.io); staging remains available on the [Arc Testnet explorer](https://explorer.testnet.arc.io).
 
 ---
 
@@ -60,13 +60,15 @@ Arc is fully EVM-compatible. FlowPay's contracts are standard Solidity, built wi
 
 | Contract | Address |
 |----------|---------|
-| FlowPay Stream (`ArcFlow` contract) | [`0xAB78614fED57bB451b70EE194fC4043CADCC39eF`](https://testnet.arcscan.app/address/0xAB78614fED57bB451b70EE194fC4043CADCC39eF) |
-| ArcInvoice | [`0x8d533a6DF78ef01F6E4E998588D3Ccb21F668486`](https://testnet.arcscan.app/address/0x8d533a6DF78ef01F6E4E998588D3Ccb21F668486) |
-| ArcPaywall | [`0xC805Da7670ae48CD14Bf50434f919C2Efe3Ed6BD`](https://testnet.arcscan.app/address/0xC805Da7670ae48CD14Bf50434f919C2Efe3Ed6BD) |
+| FlowPay Stream (`ArcFlow` contract) | [`0xAB78614fED57bB451b70EE194fC4043CADCC39eF`](https://explorer.testnet.arc.io/address/0xAB78614fED57bB451b70EE194fC4043CADCC39eF) |
+| ArcInvoice | [`0x8d533a6DF78ef01F6E4E998588D3Ccb21F668486`](https://explorer.testnet.arc.io/address/0x8d533a6DF78ef01F6E4E998588D3Ccb21F668486) |
+| ArcPaywall | [`0xC805Da7670ae48CD14Bf50434f919C2Efe3Ed6BD`](https://explorer.testnet.arc.io/address/0xC805Da7670ae48CD14Bf50434f919C2Efe3Ed6BD) |
 
 - **Network:** Arc Testnet
 - **Chain ID:** 5042002
-- **Explorer:** [testnet.arcscan.app](https://testnet.arcscan.app)
+- **Explorer:** [explorer.testnet.arc.io](https://explorer.testnet.arc.io)
+
+Mainnet contracts are deployed separately and configured through environment variables. Testnet addresses and state are never reused on Mainnet.
 
 ---
 
@@ -108,17 +110,17 @@ The frontend includes a live demo (FlowPay Assistant) so you can see the signing
 
 **Smart Contracts**
 - Solidity + [Foundry](https://book.getfoundry.sh/)
-- Arc Testnet (EVM-compatible, Chain ID 5042002)
+- Arc Mainnet (Chain ID 5042) and Arc Testnet staging (Chain ID 5042002)
 
 **Frontend**
 - Next.js 16
-- wagmi v2 + viem
+- wagmi v3 + viem
 - Tailwind CSS + Framer Motion
 
 **Backend**
 - Next.js API Routes (serverless)
 - Upstash Redis — atomic nonce reservation, idempotency keys, ordered settlement queue, public marketplace metadata, and private endpoint mapping
-- Vercel Cron — hourly batch settlement sweep
+- Upstash QStash — signed five-minute settlement sweep on the free tier
 
 ---
 
@@ -130,6 +132,9 @@ The frontend includes a live demo (FlowPay Assistant) so you can see the signing
 # Install Foundry
 curl -L https://foundry.paradigm.xyz | bash && foundryup
 
+# Import the deployer into Foundry's encrypted keystore (interactive)
+cast wallet import flowpay-deployer
+
 # Build
 forge build
 
@@ -138,20 +143,20 @@ forge test
 
 # Deploy stream contract
 forge script script/Deploy.s.sol \
-  --rpc-url https://rpc.testnet.arc.network \
-  --private-key $PRIVATE_KEY \
+  --rpc-url arc_mainnet \
+  --account flowpay-deployer \
   --broadcast
 
 # Deploy invoice contract
 forge script script/DeployInvoice.s.sol \
-  --rpc-url https://rpc.testnet.arc.network \
-  --private-key $PRIVATE_KEY \
+  --rpc-url arc_mainnet \
+  --account flowpay-deployer \
   --broadcast
 
 # Deploy paywall contract
 forge script script/DeployPaywallV2.s.sol \
-  --rpc-url https://rpc.testnet.arc.network \
-  --private-key $PRIVATE_KEY \
+  --rpc-url arc_mainnet \
+  --account flowpay-deployer \
   --broadcast
 ```
 
@@ -166,12 +171,28 @@ npm run dev
 Create a `.env.local`:
 
 ```env
+NEXT_PUBLIC_ARC_NETWORK=mainnet
+NEXT_PUBLIC_ARC_FLOW_ADDRESS=0x...
+NEXT_PUBLIC_ARC_INVOICE_ADDRESS=0x...
+NEXT_PUBLIC_ARC_PAYWALL_V2_ADDRESS=0x...
+ARC_PAYWALL_V2_ADDRESS=0x...
+
 UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
 UPSTASH_REDIS_REST_TOKEN=your-token
 OWNER_PRIVATE_KEY=0x...
 CRON_SECRET=your-random-secret
-NEXT_PUBLIC_ARC_PAYWALL_V2_ADDRESS=0x...
-ARC_PAYWALL_V2_ADDRESS=0x...
+
+QSTASH_TOKEN=...
+QSTASH_CURRENT_SIGNING_KEY=...
+QSTASH_NEXT_SIGNING_KEY=...
+QSTASH_DESTINATION_URL=https://flowonarc.net/api/settle
+```
+
+Create the free five-minute settlement schedule after the production deployment:
+
+```shell
+cd frontend
+npm run setup:qstash
 ```
 
 ### Tests
@@ -181,7 +202,7 @@ cd frontend
 npm test
 ```
 
-13 edge case tests covering concurrent nonce requests, duplicate request idempotency, expired reservation handling, out-of-order batch settlement, and crash recovery.
+Tests cover serialized nonce reservation, duplicate request idempotency, expired reservation recovery, ordered batch settlement, and crash recovery.
 
 ---
 

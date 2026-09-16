@@ -7,6 +7,7 @@ import { useAutoHide } from "@/lib/useAutoHide";
 import { decodeEventLog } from "viem";
 import { CONTRACTS } from "@/lib/wagmi";
 import { formatNativeUsdc, parseNativeUsdc } from "@/lib/nativeUsdc";
+import { arcTxUrl } from "@/lib/arcNetwork";
 import { ArrowUpRight, Sparkles, Wallet, Activity, Radio } from "lucide-react";
 
 const ABI = [
@@ -477,7 +478,7 @@ export default function StreamPage() {
                         )}
                         {hash && (
                           <a
-                            href={`https://testnet.arcscan.app/tx/${hash}`}
+                            href={arcTxUrl(hash)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
@@ -591,7 +592,7 @@ export default function StreamPage() {
                     </button>
                     {showWithdrawSuccess && withdrawHash && (
                       <a
-                        href={`https://testnet.arcscan.app/tx/${withdrawHash}`}
+                        href={arcTxUrl(withdrawHash)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-[#ffb38a] underline underline-offset-2"
@@ -731,7 +732,7 @@ export default function StreamPage() {
                             <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 px-4 py-3 text-sm text-[#ffd7c7] flex items-center gap-3">
                               <span>Withdrawn successfully.</span>
                               <a
-                                href={`https://testnet.arcscan.app/tx/${incomingWithdrawHash}`}
+                                href={arcTxUrl(incomingWithdrawHash)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 font-medium text-[#ffb38a] underline underline-offset-2"

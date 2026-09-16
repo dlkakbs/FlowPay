@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 /// @title  ArcInvoice
-/// @notice Arc Testnet'te native USDC ile fatura gönder/al.
+/// @notice Arc üzerinde native USDC ile fatura gönder/al.
 ///
 ///  Flow:
 ///    Freelancer → createInvoice(amount, description, deadline)
@@ -30,6 +30,7 @@ contract ArcInvoice {
     uint256 public invoiceCount;
     mapping(uint256 => Invoice) public invoices;
     mapping(address => uint256[]) public myInvoices; // creator → invoice listesi
+    uint256 private locked = 1;
 
     // ─── Events ───────────────────────────────────────────────────────────
 
@@ -44,6 +45,15 @@ contract ArcInvoice {
     error Expired();
     error WrongAmount();
     error NotCreator();
+    error TransferFailed();
+    error ReentrantCall();
+
+    modifier nonReentrant() {
+        if (locked != 1) revert ReentrantCall();
+        locked = 2;
+        _;
+        locked = 1;
+    }
 
     // ─── Creator: Fatura oluştur ──────────────────────────────────────────
 
@@ -73,7 +83,7 @@ contract ArcInvoice {
 
     // ─── Payer: Fatura öde ────────────────────────────────────────────────
 
-    function payInvoice(uint256 id) external payable {
+    function payInvoice(uint256 id) external payable nonReentrant {
         Invoice storage inv = invoices[id];
 
         if (inv.status != Status.Pending)              revert NotPending();
@@ -81,7 +91,8 @@ contract ArcInvoice {
         if (msg.value != inv.amount)                   revert WrongAmount();
 
         inv.status = Status.Paid;
-        payable(inv.creator).transfer(msg.value);
+        (bool success, ) = payable(inv.creator).call{value: msg.value}("");
+        if (!success) revert TransferFailed();
 
         emit InvoicePaid(id, msg.sender, msg.value);
     }

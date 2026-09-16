@@ -3,6 +3,27 @@ import { recoverMessageAddress } from 'viem'
 import { IS_PAYWALL_V2, PAYWALL_ADDRESS, PAYWALL_V2_ABI, publicClient } from '@/lib/arcChain'
 import { listServices, registerService } from '@/lib/serviceRegistry'
 
+function isSafeServiceEndpoint(raw: string): boolean {
+  try {
+    const url = new URL(raw)
+    const hostname = url.hostname.toLowerCase()
+    const privateIpv4 = /^(10\.|127\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/
+
+    if (process.env.NODE_ENV === 'production' && url.protocol !== 'https:') return false
+    if (!['http:', 'https:'].includes(url.protocol)) return false
+    if (
+      hostname === 'localhost' ||
+      hostname === '::1' ||
+      hostname.endsWith('.local') ||
+      privateIpv4.test(hostname)
+    ) return false
+
+    return true
+  } catch {
+    return false
+  }
+}
+
 export async function GET() {
   const services = await listServices()
   const enriched = await Promise.all(
@@ -53,6 +74,10 @@ export async function POST(req: NextRequest) {
 
     if (!ownerAddress || !name || !endpoint || !signature || !message) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    if (!isSafeServiceEndpoint(endpoint)) {
+      return NextResponse.json({ error: 'Service endpoint must be a public HTTPS URL.' }, { status: 400 })
     }
 
     const recovered = await recoverMessageAddress({

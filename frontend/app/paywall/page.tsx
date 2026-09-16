@@ -15,8 +15,8 @@ import {
   publicClient,
 } from "@/lib/arcChain";
 import { formatNativeUsdc, parseNativeUsdc } from "@/lib/nativeUsdc";
+import { ARC_CHAIN_ID, arcTxUrl } from "@/lib/arcNetwork";
 
-const ARC_CHAIN_ID = 5042002;
 const ABI = IS_PAYWALL_V2 ? PAYWALL_V2_ABI : PAYWALL_V1_ABI;
 
 type ServiceEntry = {
@@ -452,7 +452,7 @@ export default function PaywallPage() {
                     <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                       <p>Deposit confirmed. Your request credits have been added.</p>
                       <a
-                        href={`https://testnet.arcscan.app/tx/${depositHash}`}
+                        href={arcTxUrl(depositHash)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
@@ -505,7 +505,7 @@ export default function PaywallPage() {
                     <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                       <p>Withdrawal confirmed. Funds have been returned to your wallet.</p>
                       <a
-                        href={`https://testnet.arcscan.app/tx/${withdrawHash}`}
+                        href={arcTxUrl(withdrawHash)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
@@ -819,7 +819,7 @@ export default function PaywallPage() {
                   <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                     <p>Provider withdrawal confirmed.</p>
                     <a
-                      href={`https://testnet.arcscan.app/tx/${claimHash}`}
+                      href={arcTxUrl(claimHash)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { enqueueItem } from '@/lib/nonceReserver'
+import { enqueueItem, releaseSubmitted } from '@/lib/nonceReserver'
 import { cacheResponse, getCreditsSnapshot, readCachedResponse, verifyPaidRequest } from '@/lib/paywallPayment'
 import { getService } from '@/lib/serviceRegistry'
 
@@ -49,26 +49,33 @@ export async function POST(req: NextRequest) {
     const cached = await readCachedResponse(idempotencyKey)
     if (cached) return NextResponse.json(cached)
 
-    const { reservation, deadline } = await verifyPaidRequest({
+    const { reservation, deadline, pricePerRequest } = await verifyPaidRequest({
       reservationId,
       signature,
       clientAddress,
+      serviceId: service.serviceId,
     })
 
-    await enqueueItem(clientAddress, reservation.nonce, deadline, signature)
-
-    const upstreamResponse = await fetch(service.endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-FlowPay-Service': service.serviceId },
-      body: JSON.stringify({
-        prompt,
-        clientAddress,
-        serviceId: service.serviceId,
-      }),
-      cache: 'no-store',
-    })
+    let upstreamResponse: Response
+    try {
+      upstreamResponse = await fetch(service.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-FlowPay-Service': service.serviceId },
+        body: JSON.stringify({
+          prompt,
+          clientAddress,
+          serviceId: service.serviceId,
+        }),
+        cache: 'no-store',
+        redirect: 'error',
+      })
+    } catch (error) {
+      await releaseSubmitted(reservation.reservationId)
+      throw error
+    }
 
     if (!upstreamResponse.ok) {
+      await releaseSubmitted(reservation.reservationId)
       return NextResponse.json(
         { error: `Upstream service failed with ${upstreamResponse.status}.` },
         { status: 502 }
@@ -81,6 +88,16 @@ export async function POST(req: NextRequest) {
       : await upstreamResponse.text()
 
     const normalized = normalizeUpstreamPayload(upstreamPayload)
+
+    await enqueueItem(
+      clientAddress,
+      reservation.nonce,
+      deadline,
+      signature,
+      reservation.serviceId,
+      pricePerRequest,
+      reservation.reservationId
+    )
     const { availableCredits, onChainRemaining, pendingQueued } = await getCreditsSnapshot(clientAddress, service.serviceId)
 
     const result = {

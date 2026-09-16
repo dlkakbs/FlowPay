@@ -23,13 +23,14 @@ class InMemoryRedis {
     return entry.value as unknown as T
   }
 
-  async set(key: string, value: unknown, opts?: { ex?: number; xx?: boolean; keepttl?: boolean }): Promise<'OK' | null> {
+  async set(key: string, value: unknown, opts?: { ex?: number; nx?: boolean; xx?: boolean; keepTtl?: boolean }): Promise<'OK' | null> {
     const existing = this.store.get(key)
+    if (opts?.nx && existing && !this.isExpired(key)) return null
     if (opts?.xx && !existing) return null
 
     const expiresAt = opts?.ex
       ? Date.now() + opts.ex * 1000
-      : opts?.keepttl && existing?.expiresAt
+      : opts?.keepTtl && existing?.expiresAt
       ? existing.expiresAt
       : undefined
 

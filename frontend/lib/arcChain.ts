@@ -1,14 +1,7 @@
-import { createPublicClient, defineChain, http } from 'viem'
-import { ARC_NATIVE_USDC_DECIMALS } from './nativeUsdc'
+import { createPublicClient, http } from 'viem'
+import { arcChain, IS_ARC_MAINNET } from './arcNetwork'
 
-export const arcTestnet = defineChain({
-  id: 5042002,
-  name: 'Arc Testnet',
-  nativeCurrency: { name: 'USD Coin', symbol: 'USDC', decimals: ARC_NATIVE_USDC_DECIMALS },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.arc.network'] },
-  },
-})
+export { arcChain }
 
 export const PAYWALL_V1_ADDRESS = '0xb1f95F4d86C743cbe1797C931A9680dF5766633A' as `0x${string}`
 export const PAYWALL_V2_ADDRESS =
@@ -189,6 +182,7 @@ export const PAYWALL_V2_ABI = [
       { name: 'clients', type: 'address[]' },
       { name: 'clientNonces', type: 'uint256[]' },
       { name: 'deadlines', type: 'uint256[]' },
+      { name: 'paymentAmounts', type: 'uint256[]' },
       { name: 'signatures', type: 'bytes[]' },
     ],
     outputs: [],
@@ -197,9 +191,12 @@ export const PAYWALL_V2_ABI = [
 
 export const PAYWALL_VERSION = PAYWALL_V2_ADDRESS ? 'v2' : 'v1'
 export const IS_PAYWALL_V2 = PAYWALL_VERSION === 'v2'
-export const PAYWALL_ADDRESS = (PAYWALL_V2_ADDRESS || PAYWALL_V1_ADDRESS) as `0x${string}`
+export const PAYWALL_ADDRESS = (
+  PAYWALL_V2_ADDRESS ||
+  (IS_ARC_MAINNET ? '0x0000000000000000000000000000000000000000' : PAYWALL_V1_ADDRESS)
+) as `0x${string}`
 
 export const publicClient = createPublicClient({
-  chain: arcTestnet,
+  chain: arcChain,
   transport: http(),
 })
