@@ -120,7 +120,8 @@ The frontend includes a live demo (FlowPay Assistant) so you can see the signing
 **Backend**
 - Next.js API Routes (serverless)
 - Upstash Redis — atomic nonce reservation, idempotency keys, ordered settlement queue, public marketplace metadata, and private endpoint mapping
-- Upstash QStash — signed five-minute settlement sweep on the free tier
+- GitHub Actions — free five-minute settlement trigger for this public repository
+- Upstash QStash — optional signed scheduler if stricter delivery/retry guarantees are needed
 
 ---
 
@@ -188,7 +189,9 @@ QSTASH_NEXT_SIGNING_KEY=...
 QSTASH_DESTINATION_URL=https://flowonarc.net/api/settle
 ```
 
-Create the free five-minute settlement schedule after the production deployment:
+The repository's GitHub Actions workflow calls the protected settlement endpoint every five minutes. Set the same random value as `CRON_SECRET` in Vercel and as the `FLOWPAY_CRON_SECRET` GitHub Actions secret.
+
+QStash remains available as an optional scheduler. To create its five-minute schedule after a production deployment:
 
 ```shell
 cd frontend

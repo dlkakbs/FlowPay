@@ -1,0 +1,27 @@
+name: FlowPay settlement
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: flowpay-settlement
+  cancel-in-progress: false
+
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger signed settlement endpoint
+        env:
+          FLOWPAY_CRON_SECRET: ${{ secrets.FLOWPAY_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --retry 2 \
+            --retry-all-errors \
+            --header "Authorization: Bearer ${FLOWPAY_CRON_SECRET}" \
+            https://www.flowonarc.net/api/settle
