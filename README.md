@@ -56,6 +56,22 @@ Arc is EVM-compatible. FlowPay's contracts are standard Solidity and built with 
 
 ---
 
+## Deployed Contracts (Arc Mainnet)
+
+| Contract | Address |
+|----------|---------|
+| FlowPay Stream (`ArcFlow` contract) | [`0xAB78614fED57bB451b70EE194fC4043CADCC39eF`](https://explorer.arc.io/address/0xAB78614fED57bB451b70EE194fC4043CADCC39eF) |
+| ArcInvoice | [`0x8d533a6DF78ef01F6E4E998588D3Ccb21F668486`](https://explorer.arc.io/address/0x8d533a6DF78ef01F6E4E998588D3Ccb21F668486) |
+| ArcPaywallV2 | [`0xb1f95F4d86C743cbe1797C931A9680dF5766633A`](https://explorer.arc.io/address/0xb1f95F4d86C743cbe1797C931A9680dF5766633A) |
+
+- **Network:** Arc Mainnet
+- **Chain ID:** 5042
+- **Deployer / paywall settler:** `0xe7E598D278F5ee26D27743f66C34D74DB1f45bD7`
+
+The deployment receipts and bytecode hashes are recorded in `deployments/arc-mainnet.json`.
+
+---
+
 ## Deployed Contracts (Arc Testnet)
 
 | Contract | Address |
@@ -68,7 +84,7 @@ Arc is EVM-compatible. FlowPay's contracts are standard Solidity and built with 
 - **Chain ID:** 5042002
 - **Explorer:** [explorer.testnet.arc.io](https://explorer.testnet.arc.io)
 
-Mainnet contracts are deployed separately and configured through environment variables. Testnet addresses and state are never reused on Mainnet.
+Production uses the Mainnet addresses above through environment variables. Testnet remains available as an isolated staging environment; contract state is never shared between networks.
 
 ---
 

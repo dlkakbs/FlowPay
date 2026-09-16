@@ -1,0 +1,43 @@
+{
+  "network": "arc-mainnet",
+  "chainId": 5042,
+  "rpcUrl": "https://rpc.mainnet.arc.io",
+  "deployer": "0xe7E598D278F5ee26D27743f66C34D74DB1f45bD7",
+  "contracts": {
+    "ArcFlow": {
+      "address": "0xab78614fed57bb451b70ee194fc4043cadcc39ef",
+      "transactionHash": "0x0467c422290557898a9b5bd75c4ce589c24024563d8c0ad8613eb84ace353a3e",
+      "blockNumber": "21108754",
+      "gasUsed": "531562",
+      "effectiveGasPrice": "21000000000",
+      "costUsdc": "0.011162802",
+      "artifact": "out/ArcFlow.sol/ArcFlow.json",
+      "initCodeHash": "0xecd4f7a9fd3d1daa2065d19deecd48ca7bc4a7d885432c0c3f95830c190a4365",
+      "runtimeCodeHash": "0xb19a38c4ef52587367e57999b5809848a11387a23af266be4813cbbaa12c4de7"
+    },
+    "ArcInvoice": {
+      "address": "0x8d533a6df78ef01f6e4e998588d3ccb21f668486",
+      "transactionHash": "0xba7433bfcf58dbec7c74ad2a95baa769ca11387711eb4e74720184533dbea922",
+      "blockNumber": "21108763",
+      "gasUsed": "652204",
+      "effectiveGasPrice": "21000000000",
+      "costUsdc": "0.013696284",
+      "artifact": "out/ArcInvoice.sol/ArcInvoice.json",
+      "initCodeHash": "0x50bfaf4ee57003fa24a96acef0504a83621b3bccbddf7e9f9fbe82d4b46d80c5",
+      "runtimeCodeHash": "0xc9344d62525dad05b9b0292502782408d4b82959c4f187c408d64672509ece2c"
+    },
+    "ArcPaywallV2": {
+      "address": "0xb1f95f4d86c743cbe1797c931a9680df5766633a",
+      "transactionHash": "0x9af203b362847676fc859d756a3dd82da969064d500a4160003eba11f8cf39a0",
+      "blockNumber": "21108766",
+      "gasUsed": "1275240",
+      "effectiveGasPrice": "21000000000",
+      "costUsdc": "0.02678004",
+      "artifact": "out/ArcPaywallV2.sol/ArcPaywallV2.json",
+      "initCodeHash": "0xe63f52d5a930bd67a3f6cda046be117813268663e23ca928f8c679337eb85f9f",
+      "runtimeCodeHash": "0xf4b899a4be8db019e7e627042fa685f8ad553746ee9ea4823398455a93f4a908"
+    }
+  },
+  "completedAt": "2026-09-16T05:38:47.335Z",
+  "remainingBalanceUsdc": "0.977935874"
+}

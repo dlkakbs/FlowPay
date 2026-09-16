@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "setup:qstash": "node scripts/create-qstash-schedule.mjs"
+    "setup:qstash": "node scripts/create-qstash-schedule.mjs",
+    "deploy:arc-mainnet": "node scripts/deploy-arc-mainnet.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
