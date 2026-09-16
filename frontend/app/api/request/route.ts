@@ -20,18 +20,17 @@ import {
   readCachedResponse,
   verifyPaidRequest,
 } from '@/lib/paywallPayment'
-import { IS_ARC_MAINNET } from '@/lib/arcNetwork'
 
 function getArcAiResponse(prompt: string): string {
   const q = prompt.toLowerCase()
 
   // FlowPay / Arc specific
-  if (q.includes('flowpay') || q.includes('arcflow')) return `FlowPay is payment infrastructure built on ${IS_ARC_MAINNET ? 'Arc Mainnet' : 'Arc Testnet'}. It has three primitives: Stream for continuous payments, Invoice for one-time requests, and Paywall for per-request micropayments — all settled in native USDC.`
+  if (q.includes('flowpay') || q.includes('arcflow')) return 'FlowPay is payment infrastructure built on Arc. It has three primitives: Stream for continuous payments, Invoice for one-time requests, and Paywall for per-request micropayments — all settled in native USDC.'
   if (q.includes('stream') && (q.includes('payment') || q.includes('salary') || q.includes('retainer'))) return 'Payment streams on FlowPay accrue every second. The payer deposits USDC upfront and sets a monthly rate; the recipient can withdraw their earned balance at any time without asking the payer.'
   if (q.includes('invoice'))      return 'FlowPay invoices are settled on-chain. The creator sets an amount and description, shares the invoice ID, and the payer sends USDC directly to the contract. No intermediary, no chargebacks.'
   if (q.includes('paywall'))      return 'The Paywall model lets users deposit USDC once and consume request credits over time. Each API call deducts one credit off-chain using a signed message — no gas per request. A batch settler rolls up signatures on-chain periodically.'
   if (q.includes('arc testnet') || q.includes('arc chain') || q.includes('arc network')) return 'Arc is a high-throughput EVM-compatible chain with native USDC support. It enables sub-cent transactions, making micropayments and streaming payments practical for the first time.'
-  if (q.includes('usdc'))         return `FlowPay uses Circle's native USDC on ${IS_ARC_MAINNET ? 'Arc Mainnet' : 'Arc Testnet'}. Because Arc has very low fees, even 0.001 USDC per-request payments are economically viable.`
+  if (q.includes('usdc'))         return "FlowPay uses Circle's native USDC on Arc. Because Arc has very low fees, even 0.001 USDC per-request payments are economically viable."
   if (q.includes('batch') || q.includes('settle')) return 'FlowPay\'s batch settlement collects off-chain signed payment authorizations and submits them in a single transaction. This reduces gas costs dramatically — 50 payments cost the same as 1 on-chain transfer.'
 
   // Crypto / Web3

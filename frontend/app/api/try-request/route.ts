@@ -1,12 +1,11 @@
 import { IS_PAYWALL_V2, PAYWALL_ADDRESS, PAYWALL_V1_ABI, PAYWALL_V2_ABI, publicClient } from "@/lib/arcChain";
-import { IS_ARC_MAINNET } from "@/lib/arcNetwork";
 
 const DEMO_RESPONSES: Record<string, string> = {
   default: "FlowPay enables usage-based payments onchain.",
   stream: "Streaming payments on FlowPay accrue every second. Recipients can withdraw anytime without waiting for a payment cycle.",
   invoice: "FlowPay invoices are settled on-chain. Create one, share the ID, and the payer sends USDC directly to you.",
   paywall: "The paywall model lets you deposit USDC upfront and consume credits per API call — no subscription, no overpaying.",
-  usdc: `FlowPay uses native USDC on ${IS_ARC_MAINNET ? "Arc Mainnet" : "Arc Testnet"}. Sub-cent transactions make micropayments viable for the first time.`,
+  usdc: "FlowPay uses native USDC on Arc. Sub-cent transactions make micropayments viable for the first time.",
   arc: "Arc is a high-throughput EVM chain with native USDC support. FlowPay is built on Arc to make payments instant and cheap.",
   how: "FlowPay has three payment primitives: Stream (continuous), Invoice (one-time), and Paywall (per-request). Each maps to a real-world payment need.",
 };

@@ -13,7 +13,7 @@ import {
   Wallet,
   Waves,
 } from "lucide-react";
-import { ARC_EXPLORER_URL, IS_ARC_MAINNET } from "@/lib/arcNetwork";
+import { ARC_MAINNET_EXPLORER_URL } from "@/lib/arcNetwork";
 
 const FEATURES = [
   {
@@ -125,7 +125,7 @@ export default function HomePage() {
             <Reveal>
               <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] uppercase tracking-[0.28em] text-[#ffd7c7] backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5" />
-                Native USDC · {IS_ARC_MAINNET ? "Arc Mainnet" : "Arc Testnet"}
+                Native USDC · Arc
               </div>
             </Reveal>
 
@@ -283,21 +283,12 @@ export default function HomePage() {
       <div className="flex justify-end px-6 pb-8 md:px-10 lg:px-12">
         <div className="flex items-center gap-3">
           <a
-            href={ARC_EXPLORER_URL}
+            href={ARC_MAINNET_EXPLORER_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs font-medium text-white/55 backdrop-blur-md hover:text-white/80 transition"
           >
-            ArcScan
-            <ArrowUpRight className="h-3 w-3" />
-          </a>
-          <a
-            href="https://faucet.circle.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs font-medium text-white/55 backdrop-blur-md hover:text-white/80 transition"
-          >
-            Faucet
+            Arc Explorer
             <ArrowUpRight className="h-3 w-3" />
           </a>
         </div>

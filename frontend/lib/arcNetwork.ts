@@ -9,11 +9,12 @@ export const ARC_NETWORK: ArcNetworkName =
 export const IS_ARC_MAINNET = ARC_NETWORK === 'mainnet'
 
 export const ARC_CHAIN_ID: number = IS_ARC_MAINNET ? 5042 : 5042002
+export const ARC_MAINNET_EXPLORER_URL = 'https://explorer.arc.io'
 export const ARC_RPC_URL = IS_ARC_MAINNET
   ? 'https://rpc.mainnet.arc.io'
   : 'https://rpc.testnet.arc.io'
 export const ARC_EXPLORER_URL = IS_ARC_MAINNET
-  ? 'https://explorer.arc.io'
+  ? ARC_MAINNET_EXPLORER_URL
   : 'https://explorer.testnet.arc.io'
 
 export const arcChain = defineChain({

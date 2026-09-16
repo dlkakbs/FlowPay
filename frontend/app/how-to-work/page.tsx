@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Sparkles, Waves, Receipt, LockKeyhole, ArrowUpRight, Code2, Send, Download } from "lucide-react";
-import { IS_ARC_MAINNET } from "@/lib/arcNetwork";
 
 const MODULES = [
   {
@@ -70,7 +69,7 @@ const MODULES = [
           "Receive the invoice ID from the creator",
           "Enter the ID and the amount in the Pay invoice form",
           "Confirm the transaction — payment settles on-chain instantly",
-          "Both parties can verify the transaction on ArcScan",
+          "Both parties can verify the transaction on Arc Explorer",
         ],
       },
     ],
@@ -115,7 +114,7 @@ const MODULES = [
 
 const REQUIREMENTS = [
   { label: "Wallet", value: "EVM-compatible" },
-  { label: "Network", value: IS_ARC_MAINNET ? "Arc Mainnet" : "Arc Testnet" },
+  { label: "Network", value: "Arc" },
   { label: "Token", value: "Native USDC" },
 ];
 
@@ -139,7 +138,7 @@ export default function HowToWorkPage() {
             </h1>
 
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/68 md:text-[21px]">
-              FlowPay brings stream, invoice, and paywall logic into one on-chain payment system built around native USDC. Built on {IS_ARC_MAINNET ? "Arc Mainnet" : "Arc Testnet"}.
+              FlowPay brings stream, invoice, and paywall logic into one on-chain payment system built around native USDC. Built on Arc.
             </p>
           </div>
         </section>
