@@ -15,7 +15,7 @@ import {
   publicClient,
 } from "@/lib/arcChain";
 import { formatNativeUsdc, parseNativeUsdc } from "@/lib/nativeUsdc";
-import { ARC_CHAIN_ID, arcTxUrl } from "@/lib/arcNetwork";
+import { ARC_CHAIN_ID, arcTxUrl, HAS_PUBLIC_ARC_EXPLORER } from "@/lib/arcNetwork";
 
 const ABI = IS_PAYWALL_V2 ? PAYWALL_V2_ABI : PAYWALL_V1_ABI;
 
@@ -451,15 +451,17 @@ export default function PaywallPage() {
                   {showDepositSuccess && depositHash && (
                     <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                       <p>Deposit confirmed. Your request credits have been added.</p>
-                      <a
-                        href={arcTxUrl(depositHash)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
-                      >
-                        View transaction
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
+                      {HAS_PUBLIC_ARC_EXPLORER && (
+                        <a
+                          href={arcTxUrl(depositHash)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
+                        >
+                          View transaction
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </a>
+                      )}
                     </div>
                   )}
 
@@ -504,15 +506,17 @@ export default function PaywallPage() {
                   {showWithdrawSuccess && withdrawHash && (
                     <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                       <p>Withdrawal confirmed. Funds have been returned to your wallet.</p>
-                      <a
-                        href={arcTxUrl(withdrawHash)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
-                      >
-                        View transaction
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
+                      {HAS_PUBLIC_ARC_EXPLORER && (
+                        <a
+                          href={arcTxUrl(withdrawHash)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
+                        >
+                          View transaction
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </a>
+                      )}
                     </div>
                   )}
 
@@ -818,15 +822,17 @@ export default function PaywallPage() {
                 {showClaimSuccess && claimHash && (
                   <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                     <p>Provider withdrawal confirmed.</p>
-                    <a
-                      href={arcTxUrl(claimHash)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
-                    >
-                      View transaction
-                      <ArrowUpRight className="h-3.5 w-3.5" />
-                    </a>
+                    {HAS_PUBLIC_ARC_EXPLORER && (
+                      <a
+                        href={arcTxUrl(claimHash)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
+                      >
+                        View transaction
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </a>
+                    )}
                   </div>
                 )}
               </div>

@@ -7,7 +7,7 @@ import { useAutoHide } from "@/lib/useAutoHide";
 import { decodeEventLog } from "viem";
 import { CONTRACTS } from "@/lib/wagmi";
 import { formatNativeUsdc, parseNativeUsdc } from "@/lib/nativeUsdc";
-import { arcTxUrl } from "@/lib/arcNetwork";
+import { arcTxUrl, HAS_PUBLIC_ARC_EXPLORER } from "@/lib/arcNetwork";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 
 const ABI = [
@@ -280,18 +280,22 @@ export default function InvoicePage() {
                     <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                       {invoiceId !== null ? (
                         <p>Invoice created. Your ID is <span className="font-bold text-white text-base">#{invoiceId}</span> — share it with your client to get paid.</p>
-                      ) : (
+                      ) : HAS_PUBLIC_ARC_EXPLORER ? (
                         <p>Invoice created. Open the explorer to find your invoice ID.</p>
+                      ) : (
+                        <p>Invoice created and confirmed on Arc.</p>
                       )}
-                      <a
-                        href={arcTxUrl(createHash)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
-                      >
-                        View transaction
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
+                      {HAS_PUBLIC_ARC_EXPLORER && (
+                        <a
+                          href={arcTxUrl(createHash)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
+                        >
+                          View transaction
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
@@ -381,15 +385,17 @@ export default function InvoicePage() {
                   {showPaySuccess && payHash && (
                     <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 p-4 text-sm text-[#ffd7c7] space-y-2">
                       <p>Payment confirmed. Funds have been sent to the invoice creator.</p>
-                      <a
-                        href={arcTxUrl(payHash)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
-                      >
-                        View transaction
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
+                      {HAS_PUBLIC_ARC_EXPLORER && (
+                        <a
+                          href={arcTxUrl(payHash)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 font-medium text-[#ffb38a] underline underline-offset-2"
+                        >
+                          View transaction
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </a>
+                      )}
                     </div>
                   )}
 

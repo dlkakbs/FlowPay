@@ -16,6 +16,7 @@ export const ARC_RPC_URL = IS_ARC_MAINNET
 export const ARC_EXPLORER_URL = IS_ARC_MAINNET
   ? ARC_MAINNET_EXPLORER_URL
   : 'https://explorer.testnet.arc.io'
+export const HAS_PUBLIC_ARC_EXPLORER = !IS_ARC_MAINNET
 
 export const arcChain = defineChain({
   id: ARC_CHAIN_ID,
@@ -28,9 +29,13 @@ export const arcChain = defineChain({
   rpcUrls: {
     default: { http: [ARC_RPC_URL] },
   },
-  blockExplorers: {
-    default: { name: 'Arc Explorer', url: ARC_EXPLORER_URL },
-  },
+  ...(HAS_PUBLIC_ARC_EXPLORER
+    ? {
+        blockExplorers: {
+          default: { name: 'Arc Explorer', url: ARC_EXPLORER_URL },
+        },
+      }
+    : {}),
   testnet: !IS_ARC_MAINNET,
 })
 

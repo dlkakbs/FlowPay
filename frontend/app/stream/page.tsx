@@ -7,7 +7,7 @@ import { useAutoHide } from "@/lib/useAutoHide";
 import { decodeEventLog } from "viem";
 import { CONTRACTS } from "@/lib/wagmi";
 import { formatNativeUsdc, parseNativeUsdc } from "@/lib/nativeUsdc";
-import { arcTxUrl } from "@/lib/arcNetwork";
+import { arcTxUrl, HAS_PUBLIC_ARC_EXPLORER } from "@/lib/arcNetwork";
 import { ArrowUpRight, Sparkles, Wallet, Activity, Radio } from "lucide-react";
 
 const ABI = [
@@ -476,7 +476,7 @@ export default function StreamPage() {
                         ) : (
                           <p>Stream created. Share the stream ID with your recipient so they can track and withdraw their balance.</p>
                         )}
-                        {hash && (
+                        {hash && HAS_PUBLIC_ARC_EXPLORER && (
                           <a
                             href={arcTxUrl(hash)}
                             target="_blank"
@@ -590,7 +590,7 @@ export default function StreamPage() {
                       {isWithdrawPending || isWithdrawMining ? "Withdrawing..." : "Withdraw now"}
                       <ArrowUpRight className="h-4 w-4" />
                     </button>
-                    {showWithdrawSuccess && withdrawHash && (
+                    {showWithdrawSuccess && withdrawHash && HAS_PUBLIC_ARC_EXPLORER && (
                       <a
                         href={arcTxUrl(withdrawHash)}
                         target="_blank"
@@ -728,7 +728,7 @@ export default function StreamPage() {
                               </button>
                             </div>
                           </div>
-                          {showIncomingWithdrawSuccess && withdrawingIncomingId === s.id && incomingWithdrawHash && (
+                          {showIncomingWithdrawSuccess && withdrawingIncomingId === s.id && incomingWithdrawHash && HAS_PUBLIC_ARC_EXPLORER && (
                             <div className="rounded-2xl border border-[#ffb38a]/20 bg-[#ffb38a]/10 px-4 py-3 text-sm text-[#ffd7c7] flex items-center gap-3">
                               <span>Withdrawn successfully.</span>
                               <a
